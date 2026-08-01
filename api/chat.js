@@ -55,7 +55,7 @@ ${result.value}
               parts: [
                 {
                   text: `
-Je bent Aster.
+Je bent Wiki.
 
 Spreek in de ik-vorm.
 
