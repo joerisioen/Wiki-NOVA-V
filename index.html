@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Aster</title>
+
+    <style>
+
+        body {
+            font-family: "Avenir LT Pro", Avenir, "Segoe UI", Arial, sans-serif;
+            background: #f5f8fe;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(31,112,229,0.12);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .logo img {
+            max-width: 320px;
+            width: 100%;
+            height: auto;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 18px;
+        }
+
+        #chat {
+            height: 500px;
+            overflow-y: auto;
+            border: 1px solid #d8e4f7;
+            border-radius: 15px;
+            padding: 20px;
+            background: #fafcff;
+            margin-bottom: 20px;
+        }
+
+        .aster {
+            color: #1f70e5;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .user {
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid #d8e4f7;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #1f70e5;
+        }
+
+        button {
+            background: #1f70e5;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 24px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #195fc2;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .footer img {
+            max-width: 10px;
+            width: 100%;
+            height: auto;
+            opacity: 0.9;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="logo">
+            <img src="nova_logo.png" alt="NOVA logo">
+        </div>
+
+        <div class="subtitle">
+            👨‍🚀 Hallo, ik ben Aster, de digitale assistent voor collega's van NOVA campus VISO.
+        </div>
+
+        <div id="chat">
+
+            <p class="aster">
+                <strong>Aster:</strong>
+                Hoe kan ik je vandaag helpen?
+            </p>
+
+        </div>
+
+        <div class="input-area">
+
+            <input
+                id="vraag"
+                type="text"
+                placeholder="Typ je vraag hier..."
+                onkeypress="if(event.key==='Enter') verstuur();"
+            >
+
+            <button onclick="verstuur()">
+                Verstuur
+            </button>
+
+        </div>
+
+        <div class="footer">
+            <img src="nova_beeldmerk.png" alt="NOVA beeldmerk">
+           
+            <img src="nova_beeldmerk.png" alt="NOVA beeldmerk">
+           
+            <img src="nova_beeldmerk.png" alt="NOVA beeldmerk">
+    </div>
+
+    </div>
+
+    <script>
+
+    async function verstuur() {
+
+        const vraag = document.getElementById("vraag").value;
+
+        if (vraag.trim() === "") {
+            return;
+        }
+
+        const chat = document.getElementById("chat");
+
+        chat.innerHTML += `
+            <p class="user">
+                <strong>Jij:</strong>
+                ${vraag}
+            </p>
+        `;
+
+        document.getElementById("vraag").value = "";
+
+        chat.innerHTML += `
+            <p id="loading" class="aster">
+                <strong>Aster:</strong>
+                Aan het nadenken...
+            </p>
+        `;
+
+        chat.scrollTop = chat.scrollHeight;
+
+        try {
+
+            const response = await fetch("/api/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    vraag: vraag
+                })
+            });
+
+            const data = await response.json();
+
+            const loading = document.getElementById("loading");
+
+            if (loading) {
+                loading.remove();
+            }
+
+            chat.innerHTML += `
+                <p class="aster">
+                    <strong>Aster:</strong>
+                    ${data.antwoord}
+                </p>
+            `;
+
+        } catch (error) {
+
+            const loading = document.getElementById("loading");
+
+            if (loading) {
+                loading.remove();
+            }
+
+            chat.innerHTML += `
+                <p class="aster">
+                    <strong>Aster:</strong>
+                    Er ging iets mis.
+                </p>
+            `;
+        }
+
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    </script>
+
+</body>
+</html>
