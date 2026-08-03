@@ -96,10 +96,8 @@ ${vraag}
 
     const data = await response.json();
 
-    console.log("GEMINI:", JSON.stringify(data, null, 2));
+return res.status(200).json(data);
 
-    const antwoord =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     return res.status(200).json({
       antwoord: antwoord || "Geen antwoord gevonden."
