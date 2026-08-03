@@ -19,7 +19,16 @@ export default async function handler(req, res) {
     console.log("PATH:", documentsPath);
 console.log("FILES:", fs.readdirSync(documentsPath));
 
-    const files = fs.readdirSync(documentsPath);
+    
+let files;
+
+try {
+  files = fs.readdirSync(documentsPath);
+  console.log("FILES:", files);
+} catch (e) {
+  console.error("DIRECTORY ERROR:", e);
+  throw e;
+}
 
     let kennisbank = "";
 
