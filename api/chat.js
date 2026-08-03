@@ -96,8 +96,14 @@ ${vraag}
 
     const data = await response.json();
 
-return res.status(200).json(data);
+console.log(JSON.stringify(data, null, 2));
 
+const antwoord =
+  data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+return res.status(200).json({
+  antwoord: antwoord || "Geen antwoord gevonden."
+});
 
     return res.status(200).json({
       antwoord: antwoord || "Geen antwoord gevonden."
