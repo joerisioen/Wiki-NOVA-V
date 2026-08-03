@@ -42,6 +42,9 @@ try {
           path: filePath
         });
 
+console.log("TEXT LENGTH:", result.value.length);
+console.log("DOC TEXT:", result.value);
+        
         kennisbank += `
 
 BESTAND: ${file}
