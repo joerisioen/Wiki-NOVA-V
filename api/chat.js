@@ -16,6 +16,9 @@ export default async function handler(req, res) {
 
     const documentsPath = path.join(process.cwd(), "documents");
 
+    console.log("PATH:", documentsPath);
+console.log("FILES:", fs.readdirSync(documentsPath));
+
     const files = fs.readdirSync(documentsPath);
 
     let kennisbank = "";
