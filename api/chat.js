@@ -116,6 +116,7 @@ ${vraag}
     );
 
     const data = await response.json();
+   console.log("Gemini:", JSON.stringify(data));
 
     const antwoord =
       data?.candidates?.[0]?.content?.parts?.[0]?.text;
