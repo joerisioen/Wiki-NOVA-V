@@ -135,8 +135,5 @@ data?.candidates?.[0]?.content?.parts?.[0]?.text;
 return res.status(200).json({
 antwoord: antwoord || "Geen antwoord ontvangen van Gemini."
 });
-    });
-
-  }
 
 }
