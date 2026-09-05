@@ -116,22 +116,27 @@ ${vraag}
     );
 
     const data = await response.json();
-   
 console.log(JSON.stringify(data, null, 2));
-   
-    const antwoord =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    return res.status(200).json({
-      antwoord: antwoord || "Geen antwoord gevonden."
-    });
-
-  } catch (error) {
-
-    console.error(error);
-
-    return res.status(500).json({
-      antwoord: error.message
+// Quota bereikt
+if (data.error?.code === 429) {
+return res.status(200).json({
+antwoord:
+"NOVA Chat is momenteel tijdelijk niet beschikbaar omdat het AI-limiet bereikt werd. Probeer later opnieuw."
+});
+}
+// Andere Gemini-fouten
+14
+if (data.error) {
+15
+return res.status(200).json({
+antwoord: `Technische fout: ${data.error.message}`
+});
+}
+const antwoord =
+data?.candidates?.[0]?.content?.parts?.[0]?.text;
+return res.status(200).json({
+antwoord: antwoord || "Geen antwoord ontvangen van Gemini."
+});
     });
 
   }
