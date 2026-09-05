@@ -125,9 +125,7 @@ antwoord:
 });
 }
 // Andere Gemini-fouten
-14
 if (data.error) {
-15
 return res.status(200).json({
 antwoord: `Technische fout: ${data.error.message}`
 });
