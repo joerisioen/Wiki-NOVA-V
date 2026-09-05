@@ -1,7 +1,8 @@
 import fs from "fs";
 import path from "path";
 import mammoth from "mammoth";
-
+import pdf from "pdf-parse";
+ 
 export default async function handler(req, res) {
 
   try {
@@ -16,19 +17,7 @@ export default async function handler(req, res) {
 
     const documentsPath = path.join(process.cwd(), "documents");
 
-    console.log("PATH:", documentsPath);
-console.log("FILES:", fs.readdirSync(documentsPath));
-
-    
-let files;
-
-try {
-  files = fs.readdirSync(documentsPath);
-  console.log("FILES:", files);
-} catch (e) {
-  console.error("DIRECTORY ERROR:", e);
-  throw e;
-}
+    const files = fs.readdirSync(documentsPath);
 
     let kennisbank = "";
 
@@ -42,9 +31,6 @@ try {
           path: filePath
         });
 
-console.log("TEXT LENGTH:", result.value.length);
-console.log("DOC TEXT:", result.value);
-        
         kennisbank += `
 
 BESTAND: ${file}
@@ -54,6 +40,20 @@ ${result.value}
 `;
 
       }
+      else if (file.endsWith(".pdf")) {
+
+  const filePath = path.join(documentsPath, file);
+
+  const buffer = fs.readFileSync(filePath);
+
+  const result = await pdf(buffer);
+
+  kennisbank += `
+BESTAND: ${file}
+
+${result.text}
+`;
+}
 
     }
 
@@ -70,13 +70,34 @@ ${result.value}
               parts: [
                 {
                   text: `
-Je bent Wiki.
+Je bent NOVA Chat, de digitale assistent van NOVA.
+Beantwoord vragen uitsluitend op basis van de beschikbare documenten.
+Als de informatie niet aanwezig is in de documenten, zeg dan eerlijk dat je het antwoord niet hebt gevonden.
 
-Spreek in de ik-vorm.
+Belangrijk:
+Geef je antwoord steeds in nette HTML-opmaak.
 
-Gebruik eerst de informatie uit onderstaande documenten.
+Gebruik:
+<h2> voor hoofdonderdelen
+<h3> voor subonderdelen
+<ul><li> voor opsommingen
+<ol><li> voor stappenplannen
+<p> voor gewone tekst
 
-Als het antwoord niet in de documenten staat, zeg dan eerlijk dat je het niet hebt gevonden.
+Gebruik NOOIT markdown zoals:
+#, ##, ###, *, **, -, ---, of tabellen.
+
+Het antwoord moet onmiddellijk leesbaar zijn voor medewerkers, leerlingen en ouders.
+
+Kies zelf de meest geschikte structuur:
+- gebruik titels wanneer er verschillende onderdelen zijn;
+- gebruik opsommingen wanneer er meerdere items zijn;
+- gebruik stappenplannen voor procedures;
+- gebruik korte alinea's voor uitleg.
+
+Vermijd grote tekstblokken.
+
+Antwoord uitsluitend met de inhoud van het antwoord. Geef geen uitleg over de opmaak.
 
 DOCUMENTEN:
 
@@ -96,14 +117,8 @@ ${vraag}
 
     const data = await response.json();
 
-console.log(JSON.stringify(data, null, 2));
-
-const antwoord =
-  data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-return res.status(200).json({
-  antwoord: antwoord || "Geen antwoord gevonden."
-});
+    const antwoord =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     return res.status(200).json({
       antwoord: antwoord || "Geen antwoord gevonden."
@@ -120,4 +135,3 @@ return res.status(200).json({
   }
 
 }
-
