@@ -232,3 +232,114 @@ export default async function handler(
         .sort(
           (a, b) =>
             b.score - a.score
+        )
+        .slice(0, 6)
+        .map(
+          (resultaat) =>
+            resultaat.chunk
+        )
+        .join("\n\n");
+
+    const prompt = `
+Je bent NOVA Chat.
+
+Gebruik uitsluitend de meegegeven documentfragmenten.
+
+Wanneer het antwoord niet voldoende terug te vinden is in de documentfragmenten, zeg dan eerlijk dat je het antwoord niet hebt gevonden.
+
+Geef uitsluitend HTML terug.
+
+Gebruik:
+
+<h1> Hoofdonderwerp
+<h2> Onderdeel
+<h3> Verdere onderverdeling
+<p> Tekst
+<ul><li> Opsommingen
+<ol><li> Stappenplannen
+
+Regels:
+
+- Gebruik een duidelijke structuur.
+- Gebruik h1 voor de hoofdtitel.
+- Gebruik h2 en h3 waar nuttig.
+- Geef procedures als genummerde stappen.
+- Gebruik korte alinea's.
+- Gebruik geen markdown.
+- Gebruik alleen informatie uit de documenten.
+- Vermijd herhalingen.
+
+DOCUMENTFRAGMENTEN:
+
+${relevanteChunks}
+
+VRAAG:
+
+${vraag}
+`;
+
+    const response =
+      await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: prompt,
+                  },
+                ],
+              },
+            ],
+
+            generationConfig: {
+              temperature: 0.2,
+              topP: 0.8,
+              topK: 20,
+              maxOutputTokens: 2048,
+            },
+          }),
+        }
+      );
+
+    const data =
+      await response.json();
+
+    console.log(
+      "Gemini:",
+      JSON.stringify(data)
+    );
+
+    const antwoord =
+      data?.candidates?.[0]
+        ?.content?.parts?.[0]
+        ?.text ||
+      "<p>Geen antwoord gevonden.</p>";
+
+    return res
+      .status(200)
+      .json({
+        antwoord,
+      });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res
+      .status(500)
+      .json({
+        antwoord:
+          error.message ||
+          "Interne serverfout"
+      });
+  }
+}
